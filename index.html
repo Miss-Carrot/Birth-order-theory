@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Are you the eldest child? Youngest? Are birth order stereotypes true? – BBC Ideas</title>
+  <link rel="icon" type="image/png" sizes="48x48" href="favicon.png">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --correct: #22c55e;
+      --incorrect: #ef4444;
+      --border: #334155;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px 60px;
+    }
+
+    .container { max-width: 860px; margin: 0 auto; }
+
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 6px;
+      color: #f8fafc;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin-bottom: 20px;
+      font-size: 1.05rem;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .nav button {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 10px 18px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav button:hover { border-color: var(--accent); color: var(--accent); }
+
+    .nav button.active {
+      background: var(--accent);
+      color: #0f172a;
+      border-color: var(--accent);
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      background: #000;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    .video-wrapper iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border: 0;
+    }
+
+    .video-fallback {
+      text-align: center;
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .video-fallback a { color: var(--accent); }
+
+    .instructions {
+      color: var(--muted);
+      margin-bottom: 22px;
+      font-size: 1.05rem;
+    }
+
+    .note {
+      font-size: 0.9rem;
+      color: var(--accent);
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+
+    .question {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 16px;
+    }
+
+    .question h3 {
+      font-size: 1.05rem;
+      margin-bottom: 10px;
+      color: #f1f5f9;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .option {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 11px 13px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #0f172a;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+      user-select: none;
+    }
+
+    .option:hover { border-color: var(--accent); background: #1e293b; }
+
+    .option input {
+      margin-top: 3px;
+      accent-color: var(--accent);
+      width: 17px; height: 17px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .option span { flex: 1; }
+
+    .option.correct {
+      background: rgba(34, 197, 94, 0.18);
+      border-color: var(--correct);
+      color: #bbf7d0;
+    }
+
+    .option.incorrect {
+      background: rgba(239, 68, 68, 0.18);
+      border-color: var(--incorrect);
+      color: #fecaca;
+    }
+
+    /* Vocabulary */
+    .vocab-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .vocab-item .ru {
+      color: #f1f5f9;
+      font-size: 1.02rem;
+    }
+
+    .vocab-item input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #0f172a;
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .vocab-item input[type="text"]:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .vocab-item.correct input {
+      border-color: var(--correct);
+      background: rgba(34, 197, 94, 0.12);
+    }
+
+    .vocab-item.incorrect input {
+      border-color: var(--incorrect);
+      background: rgba(239, 68, 68, 0.12);
+    }
+
+    .feedback {
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    .feedback.correct { color: var(--correct); }
+    .feedback.incorrect { color: var(--incorrect); }
+
+    /* Gap fills */
+    .word-bank {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .word-bank strong { color: #f1f5f9; }
+
+    .gap-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      line-height: 1.7;
+    }
+
+    .gap-item input[type="text"] {
+      display: inline-block;
+      width: 140px;
+      padding: 6px 10px;
+      margin: 0 4px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #0f172a;
+      color: var(--text);
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .gap-item input[type="text"]:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .gap-item.correct input {
+      border-color: var(--correct);
+      background: rgba(34, 197, 94, 0.12);
+    }
+
+    .gap-item.incorrect input {
+      border-color: var(--incorrect);
+      background: rgba(239, 68, 68, 0.12);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 28px 0 16px;
+      align-items: center;
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: #0f172a;
+      border: none;
+      padding: 12px 22px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button.primary:hover { opacity: 0.9; }
+
+    button.secondary {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 12px 22px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #score1, #score2, #score3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #f8fafc;
+      margin-left: 8px;
+    }
+
+    .footer-note {
+      margin-top: 28px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.show { display: flex; }
+
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 28px;
+      max-width: 380px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+
+    .modal .score-big {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: #f8fafc;
+      margin-bottom: 8px;
+    }
+
+    .modal .message {
+      font-size: 1.25rem;
+      color: var(--text);
+      margin-bottom: 24px;
+      line-height: 1.4;
+    }
+
+    .modal button {
+      background: var(--accent);
+      color: #0f172a;
+      border: none;
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .modal button:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Are you the eldest child? Youngest? Are birth order stereotypes true?</h1>
+    <p class="subtitle">by BBC Ideas</p>
+
+    <div class="video-wrapper">
+      <iframe
+        src="https://www.youtube.com/embed/0S_hqbCbo9Y?rel=0"
+        title="Are you the eldest child? Youngest? Are birth order stereotypes true? – BBC Ideas"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen>
+      </iframe>
+    </div>
+    <p class="video-fallback">
+      If the video appears as a black square,
+      <a href="https://youtu.be/0S_hqbCbo9Y" target="_blank" rel="noopener">watch it directly on YouTube here</a>.
+    </p>
+
+    <div class="nav">
+      <button class="active" data-page="1">Listening comprehension</button>
+      <button data-page="2">Vocabulary</button>
+      <button data-page="3">Vocabulary practice</button>
+    </div>
+
+    <!-- PAGE 1 – Listening (multi-select) -->
+    <div class="page active" id="page1">
+      <p class="instructions">Choose the correct answer(s). There may be 1, 2, or 3 correct answers for each question.</p>
+
+      <form id="form1">
+        <div class="question" data-correct="A,C">
+          <h3>1. What does birth order theory suggest?</h3>
+          <p class="note">Select all that apply</p>
+          <div class="options">
+            <label class="option"><input type="checkbox" name="q1" value="A"> <span>A. The order in which children are born can influence their personality traits.</span></label>
+            <label class="option"><input type="checkbox" name="q1" value="B"> <span>B. Children born into the same family always develop similar personalities.</span></label>
+            <label class="option"><input type="checkbox" name="q1" value="C"> <span>C. Birth order can affect IQ and life success as well as personality.</span></label>
+            <label class="option"><input type="checkbox" name="q1" value="D"> <span>D. Personality is determined entirely by how parents treat their children.</span></label>
+          </div>
+        </div>
+
+        <div class="question" data-correct="A,B">
+          <h3>2. What did Alfred Adler believe?</h3>
+          <p class="note">Select all that apply</p>
+          <div class="options">
+            <label class="option"><input type="checkbox" name="q2" value="A"> <span>A. Parents tend to treat children differently depending on their birth order.</span></label>
+            <label class="option"><input type="checkbox" name="q2" value="B"> <span>B. Comparing siblings can make children feel inferior.</span></label>
+            <label class="option"><input type="checkbox" name="q2" value="C"> <span>C. Middle children are naturally more intelligent than their siblings.</span></label>
+            <label class="option"><input type="checkbox" name="q2" value="D"> <span>D. Children raised in the same family should have identical personalities.</span></label>
+          </div>
+        </div>
+
+        <div class="question" data-correct="A,C">
+          <h3>3. Which characteristics are traditionally associated with the eldest child?</h3>
+          <p class="note">Select all that apply</p>
+          <div class="options">
+            <label class="option"><input type="checkbox" name="q3" value="A"> <span>A. Being responsible and reliable.</span></label>
+            <label class="option"><input type="checkbox" name="q3" value="B"> <span>B. Being entertaining and charming.</span></label>
+            <label class="option"><input type="checkbox" name="q3" value="C"> <span>C. Being cautious but sometimes bossy.</span></label>
+            <label class="option"><input type="checkbox" name="q3" value="D"> <span>D. Being adventurous to find a unique role in the family.</span></label>
+          </div>
+        </div>
+
+        <div class="question" data-correct="A,B">
+          <h3>4. Why might middle children develop into peacemakers?</h3>
+          <p class="note">Select all that apply</p>
+          <div class="options">
+            <label class="option"><input type="checkbox" name="q4" value="A"> <span>A. They are often thought to feel left out or ignored.</span></label>
+            <label class="option"><input type="checkbox" name="q4" value="B"> <span>B. They try to fit into a family where older siblings may already have established their roles.</span></label>
+            <label class="option"><input type="checkbox" name="q4" value="C"> <span>C. They usually receive the most parental attention.</span></label>
+            <label class="option"><input type="checkbox" name="q4" value="D"> <span>D. They are expected to take responsibility for their younger siblings.</span></label>
+          </div>
+        </div>
+
+        <div class="question" data-correct="A,B,D">
+          <h3>5. According to traditional birth order stereotypes, which characteristics are associated with the youngest child?</h3>
+          <p class="note">Select all that apply</p>
+          <div class="options">
+            <label class="option"><input type="checkbox" name="q5" value="A"> <span>A. Being self-centred or manipulative.</span></label>
+            <label class="option"><input type="checkbox" name="q5" value="B"> <span>B. Being fun and charming.</span></label>
+            <label class="option"><input type="checkbox" name="q5" value="C"> <span>C. Being responsible and cautious above all else.</span></label>
+            <label class="option"><input type="checkbox" name="q5" value="D"> <span>D. Working harder to get attention and appear different from siblings.</span></label>
+          </div>
+        </div>
+
+        <div class="question" data-correct="B,C,D">
+          <h3>6. How are only children described in the video?</h3>
+          <p class="note">Select all that apply</p>
+          <div class="options">
+            <label class="option"><input type="checkbox" name="q6" value="A"> <span>A. They are often thought to be independent and mature.</span></label>
+            <label class="option"><input type="checkbox" name="q6" value="B"> <span>B. They may seek approval from others.</span></label>
+            <label class="option"><input type="checkbox" name="q6" value="C"> <span>C. They always have the same personality as the eldest child.</span></label>
+            <label class="option"><input type="checkbox" name="q6" value="D"> <span>D. They may display traits associated with either the eldest or the youngest child.</span></label>
+          </div>
+        </div>
+
+        <div class="question" data-correct="A,C">
+          <h3>7. What was Frank Sulloway's explanation for differences between siblings?</h3>
+          <p class="note">Select all that apply</p>
+          <div class="options">
+            <label class="option"><input type="checkbox" name="q7" value="A"> <span>A. Siblings compete for parental attention and investment.</span></label>
+            <label class="option"><input type="checkbox" name="q7" value="B"> <span>B. Children inherit completely different personalities from their parents depending on birth order.</span></label>
+            <label class="option"><input type="checkbox" name="q7" value="C"> <span>C. Children may develop different roles to reduce competition within the family.</span></label>
+            <label class="option"><input type="checkbox" name="q7" value="D"> <span>D. Siblings naturally become less cooperative as they grow older.</span></label>
+          </div>
+        </div>
+
+        <div class="question" data-correct="A,C,D">
+          <h3>8. How might the arrival of a younger sibling affect an older child?</h3>
+          <p class="note">Select all that apply</p>
+          <div class="options">
+            <label class="option"><input type="checkbox" name="q8" value="A"> <span>A. The older child may take on responsibility for looking after the younger one.</span></label>
+            <label class="option"><input type="checkbox" name="q8" value="B"> <span>B. The older child may feel that they have lost some parental attention.</span></label>
+            <label class="option"><input type="checkbox" name="q8" value="C"> <span>C. The older child will inevitably become more controlling.</span></label>
+            <label class="option"><input type="checkbox" name="q8" value="D"> <span>D. The younger sibling may need to find a different role within the family.</span></label>
+          </div>
+        </div>
+
+        <div class="question" data-correct="B,C">
+          <h3>9. What does the speaker say about research into birth order theory?</h3>
+          <p class="note">Select all that apply</p>
+          <div class="options">
+            <label class="option"><input type="checkbox" name="q9" value="A"> <span>A. All studies have confirmed Adler's original theory.</span></label>
+            <label class="option"><input type="checkbox" name="q9" value="B"> <span>B. Research findings have been inconsistent.</span></label>
+            <label class="option"><input type="checkbox" name="q9" value="C"> <span>C. Some observed differences may result from the way studies are designed.</span></label>
+            <label class="option"><input type="checkbox" name="q9" value="D"> <span>D. Researchers have proved that birth order has no effect whatsoever on personality.</span></label>
+          </div>
+        </div>
+
+        <div class="question" data-correct="A,C">
+          <h3>10. What is the speaker's overall conclusion?</h3>
+          <p class="note">Select all that apply</p>
+          <div class="options">
+            <label class="option"><input type="checkbox" name="q10" value="A"> <span>A. Birth order is an interesting subject, but its actual impact is difficult to establish.</span></label>
+            <label class="option"><input type="checkbox" name="q10" value="B"> <span>B. Birth order determines a person's personality for life.</span></label>
+            <label class="option"><input type="checkbox" name="q10" value="C"> <span>C. There is still considerable uncertainty about whether birth order has a meaningful effect.</span></label>
+            <label class="option"><input type="checkbox" name="q10" value="D"> <span>D. The youngest child is objectively the most successful family member.</span></label>
+          </div>
+        </div>
+      </form>
+
+      <div class="controls">
+        <button type="button" class="primary" id="check1">Check answers</button>
+        <button type="button" class="secondary" id="reset1">Reset</button>
+        <span id="score1"></span>
+      </div>
+    </div>
+
+    <!-- PAGE 2 – Vocabulary -->
+    <div class="page" id="page2">
+      <p class="instructions">Can you remember the English equivalents which were used in the video? Type in your variants. Then rewatch and check.</p>
+
+      <form id="form2">
+        <div class="vocab-item" data-answers="self-centred|self-centered|self centred|self centered">
+          <div class="ru">эгоцентричный, сосредоточенный на себе</div>
+          <input type="text" placeholder="Type English equivalent…">
+          <div class="feedback"></div>
+        </div>
+
+        <div class="vocab-item" data-answers="mature">
+          <div class="ru">зрелый, рассудительный</div>
+          <input type="text" placeholder="Type English equivalent…">
+          <div class="feedback"></div>
+        </div>
+
+        <div class="vocab-item" data-answers="cautious">
+          <div class="ru">осторожный</div>
+          <input type="text" placeholder="Type English equivalent…">
+          <div class="feedback"></div>
+        </div>
+
+        <div class="vocab-item" data-answers="bossy">
+          <div class="ru">властный, любящий командовать</div>
+          <input type="text" placeholder="Type English equivalent…">
+          <div class="feedback"></div>
+        </div>
+
+        <div class="vocab-item" data-answers="controlling">
+          <div class="ru">стремящийся всё контролировать</div>
+          <input type="text" placeholder="Type English equivalent…">
+          <div class="feedback"></div>
+        </div>
+
+        <div class="vocab-item" data-answers="left out|ignored|neglected">
+          <div class="ru">оставленный в стороне, исключённый из чего-либо</div>
+          <input type="text" placeholder="Type English equivalent…">
+          <div class="feedback"></div>
+        </div>
+
+        <div class="vocab-item" data-answers="inferior">
+          <div class="ru">чувствующий себя хуже других; неполноценный</div>
+          <input type="text" placeholder="Type English equivalent…">
+          <div class="feedback"></div>
+        </div>
+
+        <div class="vocab-item" data-answers="adventurous">
+          <div class="ru">любящий приключения, склонный к авантюрам</div>
+          <input type="text" placeholder="Type English equivalent…">
+          <div class="feedback"></div>
+        </div>
+
+        <div class="vocab-item" data-answers="charming">
+          <div class="ru">обаятельный</div>
+          <input type="text" placeholder="Type English equivalent…">
+          <div class="feedback"></div>
+        </div>
+
+        <div class="vocab-item" data-answers="manipulative">
+          <div class="ru">склонный манипулировать другими</div>
+          <input type="text" placeholder="Type English equivalent…">
+          <div class="feedback"></div>
+        </div>
+
+        <div class="vocab-item" data-answers="peacemaker">
+          <div class="ru">миротворец, человек, который улаживает конфликты</div>
+          <input type="text" placeholder="Type English equivalent…">
+          <div class="feedback"></div>
+        </div>
+      </form>
+
+      <div class="controls">
+        <button type="button" class="primary" id="check2">Check answers</button>
+        <button type="button" class="secondary" id="reset2">Reset</button>
+        <span id="score2"></span>
+      </div>
+    </div>
+
+    <!-- PAGE 3 – Vocabulary practice -->
+    <div class="page" id="page3">
+      <p class="instructions">Complete the sentences using these words.</p>
+      <div class="word-bank">
+        <strong>Word bank:</strong> self-centred, mature, cautious, bossy, controlling, left out, inferior, adventurous, charming, manipulative, peacemaker
+      </div>
+
+      <form id="form3">
+        <div class="gap-item" data-answer="bossy">
+          1. Nicholas can be quite <input type="text" autocomplete="off">; he always tells everyone what to do and expects them to follow his instructions.
+          <div class="feedback"></div>
+        </div>
+
+        <div class="gap-item" data-answer="mature">
+          2. Ryan’s very <input type="text" autocomplete="off"> for his age; he takes responsibility for his mistakes instead of blaming others.
+          <div class="feedback"></div>
+        </div>
+
+        <div class="gap-item" data-answer="self-centred|self-centered">
+          3. Samuel tends to be <input type="text" autocomplete="off">, always putting his own needs first and rarely thinking about anyone else.
+          <div class="feedback"></div>
+        </div>
+
+        <div class="gap-item" data-answer="charming">
+          4. Olivia’s naturally <input type="text" autocomplete="off">; she has a way of making people like her through her warmth and charisma.
+          <div class="feedback"></div>
+        </div>
+
+        <div class="gap-item" data-answer="controlling">
+          5. Thomas’s rather <input type="text" autocomplete="off"> and likes to make all the decisions for his partner, even choosing who they can spend time with.
+          <div class="feedback"></div>
+        </div>
+
+        <div class="gap-item" data-answer="left out">
+          6. Lucy felt <input type="text" autocomplete="off"> when her colleagues made plans without inviting her or even telling her about them.
+          <div class="feedback"></div>
+        </div>
+
+        <div class="gap-item" data-answer="cautious">
+          7. Ben’s quite <input type="text" autocomplete="off"> and prefers to think carefully about the risks before trying something new.
+          <div class="feedback"></div>
+        </div>
+
+        <div class="gap-item" data-answer="adventurous">
+          8. Rachel’s very <input type="text" autocomplete="off"> and loves trying unusual activities, exploring unfamiliar places and stepping outside her comfort zone.
+          <div class="feedback"></div>
+        </div>
+
+        <div class="gap-item" data-answer="inferior">
+          9. George often feels <input type="text" autocomplete="off"> to his colleagues because he believes they are more talented and capable than he is.
+          <div class="feedback"></div>
+        </div>
+
+        <div class="gap-item" data-answer="peacemaker">
+          10. Natalie’s a natural <input type="text" autocomplete="off">; whenever her friends argue, she tries to help them find common ground and resolve their disagreement.
+          <div class="feedback"></div>
+        </div>
+
+        <div class="gap-item" data-answer="manipulative">
+          11. James can be <input type="text" autocomplete="off">; he knows how to influence people subtly to get what he wants, even if it means taking advantage of them.
+          <div class="feedback"></div>
+        </div>
+      </form>
+
+      <div class="controls">
+        <button type="button" class="primary" id="check3">Check answers</button>
+        <button type="button" class="secondary" id="reset3">Reset</button>
+        <span id="score3"></span>
+      </div>
+    </div>
+
+    <p class="footer-note">Select or type your answers, then click “Check answers” on each section.</p>
+  </div>
+
+  <div class="modal-overlay" id="scoreModal">
+    <div class="modal">
+      <div class="score-big" id="modalScore"></div>
+      <div class="message" id="modalMessage"></div>
+      <button type="button" id="modalClose">OK</button>
+    </div>
+  </div>
+
+  <script>
+    // Navigation
+    document.querySelectorAll('.nav button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('page' + btn.dataset.page).classList.add('active');
+      });
+    });
+
+    // Score messages
+    const messagesListening = {
+      10: "🌟 Outstanding!",
+       9: "🏆 Excellent work!",
+       8: "🎉 Great job!",
+       7: "👏 Very good!",
+       6: "😊 Good work!",
+       5: "👍 Not bad!",
+       4: "💪 Keep it up!",
+       3: "🌱 Keep practising!",
+       2: "🤗 Don't give up!",
+       1: "❤️ Keep trying!",
+       0: "🌈 Nice try!"
+    };
+
+    const messagesVocab = {
+      11: "🚀 Outstanding!",
+      10: "🥇 Excellent!",
+       9: "🔥 Fantastic work!",
+       8: "🎯 Great job!",
+       7: "😎 Very good!",
+       6: "🙌 Good work!",
+       5: "🍀 Nice effort!",
+       4: "🐢 Keep improving!",
+       3: "🧩 Keep practising!",
+       2: "🌻 Don't give up!",
+       1: "🐣 Keep trying!",
+       0: "🦄 Give it another go!"
+    };
+
+    function showScorePopup(score, total, messages) {
+      document.getElementById('modalScore').textContent = `${score} / ${total}`;
+      document.getElementById('modalMessage').textContent = messages[score] || messages[0];
+      document.getElementById('scoreModal').classList.add('show');
+    }
+
+    document.getElementById('modalClose').addEventListener('click', () => {
+      document.getElementById('scoreModal').classList.remove('show');
+    });
+
+    document.getElementById('scoreModal').addEventListener('click', (e) => {
+      if (e.target.id === 'scoreModal') {
+        document.getElementById('scoreModal').classList.remove('show');
+      }
+    });
+
+    // ===== PAGE 1 – Multi-select =====
+    document.getElementById('check1').addEventListener('click', () => {
+      let correctCount = 0;
+      const questions = document.querySelectorAll('#page1 .question');
+
+      questions.forEach(q => {
+        const correctSet = new Set(q.dataset.correct.split(','));
+        const opts = q.querySelectorAll('.option');
+        const selectedInputs = q.querySelectorAll('input:checked');
+        const selectedSet = new Set([...selectedInputs].map(i => i.value));
+
+        opts.forEach(o => o.classList.remove('correct', 'incorrect'));
+
+        let allCorrect = true;
+        opts.forEach(o => {
+          const val = o.querySelector('input').value;
+          const isSelected = selectedSet.has(val);
+          const shouldBe = correctSet.has(val);
+
+          if (isSelected && shouldBe) {
+            o.classList.add('correct');
+          } else if (isSelected && !shouldBe) {
+            o.classList.add('incorrect');
+            allCorrect = false;
+          } else if (!isSelected && shouldBe) {
+            o.classList.add('correct');
+            allCorrect = false;
+          }
+        });
+
+        if (allCorrect && selectedSet.size === correctSet.size) {
+          correctCount++;
+        }
+      });
+
+      document.getElementById('score1').textContent = `Score: ${correctCount} / ${questions.length}`;
+      showScorePopup(correctCount, questions.length, messagesListening);
+    });
+
+    document.getElementById('reset1').addEventListener('click', () => {
+      document.getElementById('form1').reset();
+      document.querySelectorAll('#page1 .option').forEach(o => o.classList.remove('correct', 'incorrect'));
+      document.getElementById('score1').textContent = '';
+    });
+
+    // ===== PAGE 2 – Vocabulary =====
+    function normalize(str) {
+      return str.trim().toLowerCase().replace(/\s+/g, ' ');
+    }
+
+    document.getElementById('check2').addEventListener('click', () => {
+      let correct = 0;
+      const items = document.querySelectorAll('#page2 .vocab-item');
+      items.forEach(item => {
+        const input = item.querySelector('input');
+        const feedback = item.querySelector('.feedback');
+        const possible = item.dataset.answers.split('|').map(a => normalize(a));
+        const user = normalize(input.value);
+
+        item.classList.remove('correct', 'incorrect');
+        feedback.className = 'feedback';
+        feedback.textContent = '';
+
+        if (!user) return;
+
+        if (possible.includes(user)) {
+          item.classList.add('correct');
+          feedback.classList.add('correct');
+          feedback.textContent = '✓ Correct';
+          correct++;
+        } else {
+          item.classList.add('incorrect');
+          feedback.classList.add('incorrect');
+          feedback.textContent = `✗ Expected: ${item.dataset.answers.split('|')[0]}`;
+        }
+      });
+      document.getElementById('score2').textContent = `Score: ${correct} / ${items.length}`;
+      showScorePopup(correct, items.length, messagesVocab);
+    });
+
+    document.getElementById('reset2').addEventListener('click', () => {
+      document.querySelectorAll('#page2 .vocab-item').forEach(item => {
+        item.querySelector('input').value = '';
+        item.classList.remove('correct', 'incorrect');
+        item.querySelector('.feedback').textContent = '';
+        item.querySelector('.feedback').className = 'feedback';
+      });
+      document.getElementById('score2').textContent = '';
+    });
+
+    // ===== PAGE 3 – Gap fill =====
+    document.getElementById('check3').addEventListener('click', () => {
+      let correct = 0;
+      const items = document.querySelectorAll('#page3 .gap-item');
+      items.forEach(item => {
+        const input = item.querySelector('input');
+        const feedback = item.querySelector('.feedback');
+        const possible = item.dataset.answer.toLowerCase().split('|');
+        const user = input.value.trim().toLowerCase();
+
+        item.classList.remove('correct', 'incorrect');
+        feedback.className = 'feedback';
+        feedback.textContent = '';
+
+        if (!user) return;
+
+        if (possible.includes(user)) {
+          item.classList.add('correct');
+          feedback.classList.add('correct');
+          feedback.textContent = '✓ Correct';
+          correct++;
+        } else {
+          item.classList.add('incorrect');
+          feedback.classList.add('incorrect');
+          feedback.textContent = `✗ Expected: ${possible[0]}`;
+        }
+      });
+      document.getElementById('score3').textContent = `Score: ${correct} / ${items.length}`;
+      showScorePopup(correct, items.length, messagesVocab);
+    });
+
+    document.getElementById('reset3').addEventListener('click', () => {
+      document.querySelectorAll('#page3 .gap-item').forEach(item => {
+        item.querySelector('input').value = '';
+        item.classList.remove('correct', 'incorrect');
+        item.querySelector('.feedback').textContent = '';
+        item.querySelector('.feedback').className = 'feedback';
+      });
+      document.getElementById('score3').textContent = '';
+    });
+  </script>
+</body>
+</html>
